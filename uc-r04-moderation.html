@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UC-R04 · Модерация отзывов · Reforce Admin</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Roboto',sans-serif;background:#F2F2F7;color:#1C1C1E;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex}
+
+/* Sidebar */
+.sidebar{width:240px;background:#1C1C1E;flex-shrink:0;display:flex;flex-direction:column;padding:24px 0;min-height:100vh}
+.sidebar-logo{padding:0 20px 28px;display:flex;align-items:center;gap:10px}
+.sidebar-logo-lines{display:flex;flex-direction:column;gap:3px}
+.sidebar-logo-line{height:2.5px;background:#D42B2B;border-radius:2px}
+.sidebar-logo-line:nth-child(1){width:18px}
+.sidebar-logo-line:nth-child(2){width:12px}
+.sidebar-logo-line:nth-child(3){width:18px}
+.sidebar-logo-text{font-size:16px;font-weight:800;color:#fff}
+.sidebar-section{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#636366;padding:12px 20px 6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:14px;font-weight:500;color:#8E8E93;cursor:pointer;transition:all .14s;border-left:2px solid transparent}
+.sidebar-item:hover{color:#fff;background:rgba(255,255,255,.06)}
+.sidebar-item.active{color:#fff;background:rgba(212,43,43,.15);border-left-color:#D42B2B}
+.sidebar-badge{margin-left:auto;background:#D42B2B;color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+/* Content */
+.content{flex:1;padding:28px;overflow-y:auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:22px;font-weight:700;color:#1C1C1E}
+.page-sub{font-size:14px;color:#636366;margin-top:2px}
+
+/* Filters */
+.filters-bar{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.filter-label{font-size:13px;color:#636366;flex-shrink:0}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .14s;border:1.5px solid transparent}
+.chip-default{background:#F2F2F7;color:#636366;border-color:#F2F2F7}
+.chip-default:hover{border-color:#C7C7CC;color:#1C1C1E}
+.chip-active{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.chip-review{background:#FFF8EC;color:#AD5700;border-color:#FFE4AD}
+.chip-published{background:#E8FFF0;color:#1A7F37;border-color:#BBF7D0}
+.chip-rejected{background:#FFF0EF;color:#D70015;border-color:#FFCDD2}
+.filter-sep{width:1px;height:24px;background:#E5E5EA;flex-shrink:0}
+.filter-select{height:36px;border:1.5px solid #E5E5EA;border-radius:10px;padding:0 10px;font-size:13px;color:#1C1C1E;background:#fff;outline:none;font-family:inherit;cursor:pointer}
+
+/* Reviews list */
+.reviews-grid{display:flex;flex-direction:column;gap:12px}
+.review-item{background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;gap:16px;align-items:flex-start}
+.review-content{flex:1}
+.review-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.review-name{font-size:15px;font-weight:600;color:#1C1C1E}
+.review-date{font-size:12px;color:#8E8E93;flex-shrink:0}
+.review-complex{font-size:13px;color:#8E8E93;margin-bottom:8px}
+.review-stars{display:flex;gap:3px;margin-bottom:8px}
+.star{width:14px;height:14px;fill:currentColor}
+.star-full{color:#FF9500}
+.star-empty{color:#E5E5EA}
+.review-text{font-size:14px;color:#636366;line-height:1.5}
+.review-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+
+/* Buttons */
+.btn-publish{height:36px;padding:0 16px;background:#E8FFF0;color:#1A7F37;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid #BBF7D0;cursor:pointer;transition:all .14s;white-space:nowrap}
+.btn-publish:hover{background:#D1FAE5}
+.btn-reject{height:36px;padding:0 16px;background:#FFF0EF;color:#D70015;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid #FFCDD2;cursor:pointer;transition:all .14s;white-space:nowrap}
+.btn-reject:hover{background:#FFE4E2}
+
+/* Status tags */
+.status-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 7px;border-radius:99px;font-size:12px;font-weight:500}
+.status-pending{background:#FFF8EC;color:#AD5700}
+.status-published{background:#E8FFF0;color:#1A7F37}
+.status-rejected{background:#FFF0EF;color:#D70015}
+.status-dot{width:6px;height:6px;border-radius:50%}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-num{font-size:28px;font-weight:700;color:#1C1C1E;margin-bottom:2px}
+.stat-label{font-size:13px;color:#636366}
+.stat-sub{font-size:12px;margin-top:4px}
+
+/* Moderation info tooltip */
+.auto-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:11px;background:#FFF8EC;color:#AD5700;font-weight:500;flex-shrink:0}
+
+/* Empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px;text-align:center;background:#fff;border-radius:16px}
+.empty-icon{width:56px;height:56px;background:#F2F2F7;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-lines">
+      <div class="sidebar-logo-line"></div>
+      <div class="sidebar-logo-line"></div>
+      <div class="sidebar-logo-line"></div>
+    </div>
+    <span class="sidebar-logo-text">Reforce</span>
+  </div>
+
+  <div class="sidebar-section">Управление</div>
+  <div class="sidebar-item">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg>
+    Дашборд
+  </div>
+  <div class="sidebar-item">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Клиенты
+  </div>
+  <div class="sidebar-item">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+    Заказы
+  </div>
+
+  <div class="sidebar-section">Контент</div>
+  <div class="sidebar-item active">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Отзывы
+    <span class="sidebar-badge">4</span>
+  </div>
+
+  <div class="sidebar-section" style="margin-top:auto">Система</div>
+  <div class="sidebar-item">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H12a1.65 1.65 0 001.51-1V3a2 2 0 01-2-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Настройки
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Отзывы</h1>
+      <p class="page-sub">Модерация отзывов клиентов перед публикацией</p>
+    </div>
+  </div>
+
+  <!-- Статистика -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" style="color:#AD5700">4</div>
+      <div class="stat-label">На модерации</div>
+      <div class="stat-sub" style="color:#AD5700">Требуют проверки</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:#1A7F37">47</div>
+      <div class="stat-label">Опубликовано</div>
+      <div class="stat-sub" style="color:#8E8E93">Всего</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:#D70015">3</div>
+      <div class="stat-label">Отклонено</div>
+      <div class="stat-sub" style="color:#8E8E93">Всего</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">4.8</div>
+      <div class="stat-label">Средняя оценка</div>
+      <div class="stat-sub" style="color:#FF9500">★★★★★</div>
+    </div>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters-bar">
+    <span class="filter-label">Статус:</span>
+    <div class="filter-chips">
+      <span class="chip chip-review">На модерации (4)</span>
+      <span class="chip chip-default">Опубликован (47)</span>
+      <span class="chip chip-default">Отклонён (3)</span>
+      <span class="chip chip-default">Все</span>
+    </div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Комплект:</span>
+    <select class="filter-select">
+      <option>Все комплекты</option>
+      <option>«Защита квартиры»</option>
+      <option>«Бизнес-защита»</option>
+      <option>«Дача»</option>
+    </select>
+    <select class="filter-select">
+      <option>Сначала новые</option>
+      <option>Сначала старые</option>
+      <option>По оценке ↓</option>
+    </select>
+  </div>
+
+  <!-- Список отзывов на модерации -->
+  <div class="reviews-grid">
+
+    <!-- Отзыв 1 — хороший -->
+    <div class="review-item">
+      <div class="review-content">
+        <div class="review-header">
+          <div>
+            <div class="review-name">Алексей Морозов</div>
+            <div class="review-complex">Комплект «Защита квартиры» · Заказ №000 763</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-tag status-pending"><span class="status-dot" style="background:#FF9500"></span>На модерации</span>
+            <span class="review-date">3 июня 2026, 10:24</span>
+          </div>
+        </div>
+        <div class="review-stars">
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">Быстро установили, монтажники работали аккуратно. Сигнализация не беспокоила без причин — всё чётко. Уже второй год пользуюсь и доволен.</p>
+      </div>
+      <div class="review-actions">
+        <button class="btn-publish" onclick="publishReview(this)">✓ Опубликовать</button>
+        <button class="btn-reject" onclick="rejectReview(this)">✕ Отклонить</button>
+      </div>
+    </div>
+
+    <!-- Отзыв 2 — без текста -->
+    <div class="review-item">
+      <div class="review-content">
+        <div class="review-header">
+          <div>
+            <div class="review-name">Елена Воронова</div>
+            <div class="review-complex">Комплект «Бизнес-защита» · Заказ №000 741</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-tag status-pending"><span class="status-dot" style="background:#FF9500"></span>На модерации</span>
+            <span class="review-date">2 июня 2026, 18:05</span>
+          </div>
+        </div>
+        <div class="review-stars">
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text" style="color:#C7C7CC;font-style:italic">Без комментария</p>
+      </div>
+      <div class="review-actions">
+        <button class="btn-publish" onclick="publishReview(this)">✓ Опубликовать</button>
+        <button class="btn-reject" onclick="rejectReview(this)">✕ Отклонить</button>
+      </div>
+    </div>
+
+    <!-- Отзыв 3 — уже опубликован -->
+    <div class="review-item" style="opacity:.6">
+      <div class="review-content">
+        <div class="review-header">
+          <div>
+            <div class="review-name">Игорь Сидоров</div>
+            <div class="review-complex">Комплект «Дача» · Заказ №000 712</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-tag status-published"><span class="status-dot" style="background:#34C759"></span>Опубликован</span>
+            <span class="review-date">1 июня 2026, 09:30</span>
+          </div>
+        </div>
+        <div class="review-stars">
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">Отличная дача-защита, рекомендую всем.</p>
+      </div>
+      <div class="review-actions" style="justify-content:center;align-items:center">
+        <span class="status-tag status-published" style="font-size:13px">Опубликован</span>
+      </div>
+    </div>
+
+    <!-- Отзыв 4 — стоп-слово, авто-отклонён (AC-07) -->
+    <div class="review-item" style="border-left:3px solid #FF3B30">
+      <div class="review-content">
+        <div class="review-header">
+          <div>
+            <div class="review-name">Неизвестный пользователь</div>
+            <div class="review-complex">Комплект «Защита квартиры» · Заказ №000 698</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="auto-tag">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+              Авто-отклонён
+            </span>
+            <span class="status-tag status-rejected"><span class="status-dot" style="background:#FF3B30"></span>Отклонён</span>
+            <span class="review-date">1 июня 2026, 03:12</span>
+          </div>
+        </div>
+        <div class="review-stars">
+          <svg class="star star-full" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star star-empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">Текст содержит <span style="background:#FFCDD2;color:#D70015;padding:1px 4px;border-radius:4px;font-weight:500">[стоп-слово]</span>. Отклонён автоматически, не выставлен на ручную модерацию.</p>
+      </div>
+      <div class="review-actions" style="justify-content:center;align-items:center">
+        <span class="status-tag status-rejected" style="font-size:13px">Отклонён</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function publishReview(btn) {
+  const item = btn.closest('.review-item');
+  const statusTag = item.querySelector('.status-tag');
+  statusTag.className = 'status-tag status-published';
+  statusTag.innerHTML = '<span class="status-dot" style="background:#34C759;width:6px;height:6px;border-radius:50%;display:inline-block"></span>Опубликован';
+  item.style.opacity = '.6';
+  btn.closest('.review-actions').innerHTML = '<span class="status-tag status-published" style="font-size:13px">Опубликован</span>';
+}
+function rejectReview(btn) {
+  const item = btn.closest('.review-item');
+  const statusTag = item.querySelector('.status-tag');
+  statusTag.className = 'status-tag status-rejected';
+  statusTag.innerHTML = '<span class="status-dot" style="background:#FF3B30;width:6px;height:6px;border-radius:50%;display:inline-block"></span>Отклонён';
+  item.style.opacity = '.5';
+  btn.closest('.review-actions').innerHTML = '<span class="status-tag status-rejected" style="font-size:13px">Отклонён</span>';
+}
+</script>
+</body>
+</html>

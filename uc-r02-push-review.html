@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UC-R02 · Запрос отзыва через пуш · Reforce ЛК</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0}
+body{background:#1C1C1E;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Roboto',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+.page-title{color:#fff;font-size:22px;font-weight:700;margin-bottom:4px;text-align:center}
+.page-sub{color:#8E8E93;font-size:14px;text-align:center;margin-bottom:32px}
+.frames{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.frame-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.frame-num{background:#D42B2B;color:#fff;font-size:11px;font-weight:700;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.frame-caption{color:#8E8E93;font-size:12px;text-align:center;max-width:220px;line-height:1.4}
+.frame-caption b{color:#fff;font-weight:500}
+.arrow{color:#636366;font-size:28px;padding-top:380px;align-self:center}
+
+.phone{width:390px;height:844px;border-radius:54px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.1);display:flex;flex-direction:column}
+
+/* Statusbar */
+.sbar{height:44px;padding:14px 24px 0;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0}
+.sbar-time{font-size:15px;font-weight:600}
+.sbar-icons{display:flex;gap:5px;align-items:center}
+.sbar-white .sbar-time{color:#fff}
+.sbar-dark .sbar-time{color:#1C1C1E}
+
+/* Nav */
+.nav-top{height:44px;display:flex;align-items:center;justify-content:center;padding:0 16px;position:relative;flex-shrink:0}
+.nav-back{position:absolute;left:8px;display:flex;align-items:center;gap:2px;color:#D42B2B;font-size:17px;padding:8px;min-height:44px}
+.nav-title{font-size:17px;font-weight:600;color:#1C1C1E;text-align:center}
+
+/* Tabbar */
+.tabbar{height:83px;background:#fff;border-top:.5px solid #C7C7CC;display:flex;padding:0 4px 20px;flex-shrink:0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding-top:8px;gap:3px}
+.tab span{font-size:10px;font-weight:500;color:#8E8E93}
+.tab.active span{color:#D42B2B}
+
+/* Buttons */
+.btn{width:100%;height:56px;border-radius:16px;border:none;font-size:17px;font-weight:600;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn-primary{background:#D42B2B;color:#fff}
+.btn-secondary{background:#F2F2F7;color:#1C1C1E}
+
+/* Scroll */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.scroll::-webkit-scrollbar{display:none}
+
+/* Карточка заказа (для экрана карточки) */
+.card{background:#fff;border-radius:20px;overflow:hidden}
+.card-row{display:flex;align-items:center;padding:14px 16px;min-height:56px;border-bottom:.5px solid #F2F2F7}
+.card-row:last-child{border-bottom:none}
+.row-label{font-size:15px;color:#1C1C1E;flex:1}
+.row-value{font-size:15px;color:#636366}
+.row-action{font-size:15px;color:#D42B2B}
+
+/* Пуш-нотификация (баннер) */
+.push-banner{position:absolute;top:52px;left:12px;right:12px;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:18px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:10;display:flex;gap:10px;align-items:flex-start}
+.push-app-icon{width:36px;height:36px;border-radius:8px;background:#D42B2B;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.push-app-icon-lines{display:flex;flex-direction:column;gap:2px;padding:6px}
+.push-app-icon-line{height:2px;background:#fff;border-radius:1px}
+.push-app-icon-line:nth-child(1){width:16px}
+.push-app-icon-line:nth-child(2){width:11px}
+.push-app-icon-line:nth-child(3){width:16px}
+.push-title{font-size:14px;font-weight:600;color:#1C1C1E;margin-bottom:2px}
+.push-body{font-size:13px;color:#636366;line-height:1.4}
+.push-time{font-size:11px;color:#8E8E93;margin-top:4px}
+.push-actions{display:flex;gap:8px;margin-top:8px}
+.push-btn{flex:1;height:32px;border-radius:8px;font-size:13px;font-weight:500;font-family:inherit;border:none;cursor:pointer}
+.push-btn-dismiss{background:#E5E5EA;color:#636366}
+.push-btn-open{background:#D42B2B;color:#fff}
+
+/* Экран блокировки */
+.lock-screen{background:linear-gradient(160deg,#1A1A2E 0%,#16213E 60%,#0F3460 100%);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:48px;position:relative}
+.lock-time{font-size:64px;font-weight:300;color:#fff;letter-spacing:-2px;line-height:1}
+.lock-date{font-size:16px;color:rgba(255,255,255,.7);margin-top:6px}
+
+/* Звёздочки */
+.stars-wrap{display:flex;gap:12px;justify-content:center;margin:20px 0}
+.star{width:48px;height:48px;color:#E5E5EA;transition:color .12s,transform .1s;cursor:pointer}
+.star.active{color:#FF9500}
+.star:active{transform:scale(.9)}
+
+/* Textarea */
+.textarea-wrap{position:relative;margin:0 20px}
+.review-textarea{width:100%;height:108px;border:1.5px solid #E5E5EA;border-radius:16px;padding:14px;font-size:16px;color:#1C1C1E;resize:none;font-family:inherit;outline:none;transition:border-color .14s;background:#fff}
+.review-textarea:focus{border-color:#D42B2B}
+.review-textarea::placeholder{color:#C7C7CC}
+.char-count{position:absolute;bottom:10px;right:14px;font-size:12px;color:#C7C7CC}
+
+/* Успех */
+.success-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.success-icon{width:72px;height:72px;background:#E8FFF0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.success-title{font-size:22px;font-weight:700;color:#1C1C1E;margin-bottom:8px}
+.success-sub{font-size:15px;color:#636366;line-height:1.5;margin-bottom:32px}
+</style>
+</head>
+<body>
+
+<p class="page-title">UC-R02 · Запрос отзыва через пуш-уведомление</p>
+<p class="page-sub">Система отправляет пуш после завершения заказа → клиент оставляет отзыв</p>
+
+<div class="frames">
+
+  <!-- FRAME 1: Экран блокировки с пуш-уведомлением -->
+  <div class="frame-wrap">
+    <div class="frame-num">1</div>
+    <div class="phone">
+      <div class="sbar sbar-white" style="background:transparent;position:absolute;top:0;left:0;right:0;z-index:11">
+        <span class="sbar-time" style="color:#fff">9:41</span>
+        <div class="sbar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="#fff" stroke-width="1.5"><path d="M1 4C3.5 1.5 11.5 1.5 14 4M3.5 6.5C5 5 10 5 11.5 6.5M6 9L7.5 10.5L9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#fff" stroke-opacity=".6"/><rect x="2" y="2" width="16" height="8" rx="2" fill="#fff"/><path d="M23 4v4a2 2 0 000-4z" fill="#fff" fill-opacity=".6"/></svg>
+        </div>
+      </div>
+
+      <div class="lock-screen">
+        <div class="lock-time">9:41</div>
+        <div class="lock-date">Вторник, 3 июня</div>
+      </div>
+
+      <!-- Пуш-баннер поверх -->
+      <div class="push-banner">
+        <div class="push-app-icon">
+          <div class="push-app-icon-lines">
+            <div class="push-app-icon-line"></div>
+            <div class="push-app-icon-line"></div>
+            <div class="push-app-icon-line"></div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="push-title">Reforce</div>
+          <div class="push-body">Оцените комплект «Защита квартиры» — ваше мнение важно</div>
+          <div class="push-time">сейчас</div>
+          <div class="push-actions">
+            <button class="push-btn push-btn-dismiss">Позже</button>
+            <button class="push-btn push-btn-open">Оценить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption"><b>Пуш на заблокированном экране</b><br>Кнопки «Позже» и «Оценить»</p>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <!-- FRAME 2: Форма отзыва — пустая -->
+  <div class="frame-wrap">
+    <div class="frame-num">2</div>
+    <div class="phone" style="background:#F2F2F7">
+      <div class="sbar sbar-dark" style="background:#F2F2F7">
+        <span class="sbar-time">9:41</span>
+        <div class="sbar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#1C1C1E"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="#1C1C1E" stroke-width="1.5"><path d="M1 4C3.5 1.5 11.5 1.5 14 4M3.5 6.5C5 5 10 5 11.5 6.5M6 9L7.5 10.5L9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#1C1C1E" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="#1C1C1E"/><path d="M23 4v4a2 2 0 000-4z" fill="#1C1C1E" fill-opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="nav-top" style="background:#F2F2F7">
+        <button class="nav-back">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8 2L2 8L8 14" stroke="#D42B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Назад
+        </button>
+        <span class="nav-title">Отзыв</span>
+      </div>
+
+      <div class="scroll" style="padding:20px 0">
+        <!-- Карточка комплекта -->
+        <div style="margin:0 16px 24px;background:#fff;border-radius:20px;padding:16px">
+          <div style="font-size:13px;color:#636366;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.6px">Комплект</div>
+          <div style="font-size:17px;font-weight:600;color:#1C1C1E">«Защита квартиры»</div>
+          <div style="font-size:13px;color:#8E8E93;margin-top:2px">Заказ № 000 763 · Завершён</div>
+        </div>
+
+        <!-- Оценка -->
+        <div style="padding:0 16px;margin-bottom:8px">
+          <div style="font-size:15px;font-weight:500;color:#1C1C1E;margin-bottom:4px">
+            Ваша оценка <span style="color:#D42B2B">*</span>
+          </div>
+          <div style="font-size:13px;color:#8E8E93">Обязательно для отправки</div>
+        </div>
+        <div class="stars-wrap">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+
+        <!-- Комментарий -->
+        <div style="padding:0 16px;margin-bottom:8px">
+          <div style="font-size:15px;font-weight:500;color:#1C1C1E;margin-bottom:12px">Комментарий <span style="color:#8E8E93;font-weight:400">(необязательно)</span></div>
+        </div>
+        <div class="textarea-wrap" style="margin-bottom:28px">
+          <textarea class="review-textarea" placeholder="Расскажите о вашем опыте..." maxlength="500"></textarea>
+          <span class="char-count">0/500</span>
+        </div>
+
+        <!-- Кнопка отправки (неактивная) -->
+        <div style="padding:0 16px">
+          <button class="btn btn-secondary" style="cursor:not-allowed">Сначала выберите оценку</button>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption"><b>Форма отзыва открыта</b><br>Кнопка неактивна без оценки</p>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <!-- FRAME 3: Форма с оценкой 4 -->
+  <div class="frame-wrap">
+    <div class="frame-num">3</div>
+    <div class="phone" style="background:#F2F2F7">
+      <div class="sbar sbar-dark" style="background:#F2F2F7">
+        <span class="sbar-time">9:41</span>
+        <div class="sbar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#1C1C1E"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="#1C1C1E" stroke-width="1.5"><path d="M1 4C3.5 1.5 11.5 1.5 14 4M3.5 6.5C5 5 10 5 11.5 6.5M6 9L7.5 10.5L9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#1C1C1E" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="#1C1C1E"/><path d="M23 4v4a2 2 0 000-4z" fill="#1C1C1E" fill-opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="nav-top" style="background:#F2F2F7">
+        <button class="nav-back">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8 2L2 8L8 14" stroke="#D42B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Назад
+        </button>
+        <span class="nav-title">Отзыв</span>
+      </div>
+      <div class="scroll" style="padding:20px 0">
+        <div style="margin:0 16px 24px;background:#fff;border-radius:20px;padding:16px">
+          <div style="font-size:13px;color:#636366;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.6px">Комплект</div>
+          <div style="font-size:17px;font-weight:600;color:#1C1C1E">«Защита квартиры»</div>
+          <div style="font-size:13px;color:#8E8E93;margin-top:2px">Заказ № 000 763 · Завершён</div>
+        </div>
+        <div style="padding:0 16px;margin-bottom:4px">
+          <div style="font-size:15px;font-weight:500;color:#1C1C1E">Ваша оценка <span style="color:#D42B2B">*</span></div>
+        </div>
+        <!-- 4 из 5 звёзд активны -->
+        <div class="stars-wrap">
+          <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star active" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div style="padding:0 16px;margin-bottom:12px">
+          <div style="font-size:15px;font-weight:500;color:#1C1C1E;margin-bottom:12px">Комментарий <span style="color:#8E8E93;font-weight:400">(необязательно)</span></div>
+        </div>
+        <div class="textarea-wrap" style="margin-bottom:28px">
+          <textarea class="review-textarea" maxlength="500">Быстро установили, монтажники работали аккуратно. Приложение удобное.</textarea>
+          <span class="char-count">57/500</span>
+        </div>
+        <div style="padding:0 16px">
+          <button class="btn btn-primary">Отправить</button>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption"><b>4 из 5 звёзд выбраны</b><br>Введён комментарий, кнопка активна</p>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <!-- FRAME 4: Успех -->
+  <div class="frame-wrap">
+    <div class="frame-num">4</div>
+    <div class="phone" style="background:#F2F2F7">
+      <div class="sbar sbar-dark" style="background:#F2F2F7">
+        <span class="sbar-time">9:41</span>
+        <div class="sbar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#1C1C1E"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="#1C1C1E" stroke-width="1.5"><path d="M1 4C3.5 1.5 11.5 1.5 14 4M3.5 6.5C5 5 10 5 11.5 6.5M6 9L7.5 10.5L9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#1C1C1E" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="#1C1C1E"/><path d="M23 4v4a2 2 0 000-4z" fill="#1C1C1E" fill-opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="success-wrap">
+        <div class="success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#34C759" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="success-title">Спасибо за отзыв!</h2>
+        <p class="success-sub">Ваш отзыв отправлен на проверку.<br>После одобрения он появится<br>в разделе отзывов.</p>
+        <div style="padding:0 16px;width:100%">
+          <button class="btn btn-primary">На главную</button>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption"><b>Экран подтверждения</b><br>Отзыв создан со статусом<br>«На модерации»</p>
+  </div>
+
+</div>
+</body>
+</html>

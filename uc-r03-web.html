@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UC-R03 · Отзыв из карточки заказа (веб) · Reforce</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Roboto',sans-serif;background:#F2F2F7;color:#1C1C1E;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;font-family:inherit}
+
+/* ─── Шапка ─── */
+.topbar{background:#fff;border-bottom:1px solid #E5E5EA;padding:6px 48px;display:flex;align-items:center;justify-content:flex-end;gap:24px;font-size:12px;color:#636366}
+.topbar-city{display:flex;align-items:center;gap:4px}
+.topbar-phone{color:#D42B2B;font-weight:600}
+.nav{background:#fff;height:68px;display:flex;align-items:center;padding:0 48px;gap:24px;box-shadow:0 1px 0 #E5E5EA;position:sticky;top:0;z-index:20}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-logo-lines{display:flex;flex-direction:column;gap:3px}
+.nav-logo-line{height:2.5px;background:#D42B2B;border-radius:2px}
+.nav-logo-line:nth-child(1){width:20px}
+.nav-logo-line:nth-child(2){width:14px}
+.nav-logo-line:nth-child(3){width:20px}
+.nav-logo-text{font-size:18px;font-weight:800;letter-spacing:-0.5px;color:#1C1C1E}
+.nav-logo-text span{color:#D42B2B}
+.nav-logo-sub{font-size:9px;font-weight:500;color:#8E8E93;letter-spacing:1.5px;text-transform:uppercase;margin-top:-2px}
+.nav-search{flex:1;max-width:560px;margin:0 auto;position:relative}
+.nav-search input{width:100%;height:40px;border:1.5px solid #E5E5EA;border-radius:10px;padding:0 40px 0 14px;font-size:14px;color:#1C1C1E;background:#F9F9FB;outline:none;font-family:inherit}
+.nav-search input::placeholder{color:#8E8E93}
+.nav-search input:focus{border-color:#D42B2B;background:#fff}
+.nav-search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8E8E93}
+.nav-search-btn{position:absolute;right:0;top:0;height:40px;padding:0 16px;background:#1C1C1E;color:#fff;font-size:14px;font-weight:600;border-radius:0 10px 10px 0;transition:opacity .12s}
+.nav-search-btn:hover{opacity:.85}
+.nav-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:8px}
+.nav-action-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:10px;background:none;transition:background .12s;position:relative;color:#1C1C1E}
+.nav-action-btn:hover{background:#F2F2F7}
+.nav-action-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.nav-action-label{font-size:11px;font-weight:500;color:#1C1C1E}
+.nav-badge{position:absolute;top:4px;right:6px;background:#D42B2B;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ─── Контент ─── */
+.page{max-width:1280px;margin:0 auto;padding:24px 48px 48px}
+.breadcrumbs{display:flex;align-items:center;gap:8px;font-size:14px;color:#636366;margin-bottom:20px}
+.breadcrumbs a{color:#636366}
+.breadcrumbs a:hover{color:#1C1C1E}
+.bc-sep{color:#C7C7CC}
+
+.order-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:20px}
+.order-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #F2F2F7}
+.order-title{font-size:22px;font-weight:700;color:#1C1C1E}
+.order-meta{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:start}
+.meta-label{font-size:13px;font-weight:500;color:#636366;margin-bottom:4px}
+.meta-value{font-size:15px;color:#1C1C1E}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600}
+.status-done{background:#E8FFF0;color:#1A7F37}
+.status-active{background:#FFF8EC;color:#AD5700}
+.order-sum{text-align:right}
+.order-sum-label{font-size:13px;color:#636366;margin-bottom:4px}
+.order-sum-value{font-size:18px;font-weight:700;color:#1C1C1E}
+
+/* ─── Сетка двух колонок ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+.section{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:20px}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;border-bottom:1px solid #F2F2F7}
+.section-header:hover{background:#F9F9FB}
+.section-title-text{font-size:16px;font-weight:600;color:#1C1C1E}
+.section-chevron{width:20px;height:20px;color:#C7C7CC;transition:transform .2s}
+.section-chevron.open{transform:rotate(180deg)}
+.section-body{padding:20px}
+
+.info-grid{display:grid;gap:12px}
+.info-row{display:flex;gap:12px}
+.info-label{font-size:13px;color:#636366;min-width:80px;flex-shrink:0}
+.info-value{font-size:14px;color:#1C1C1E}
+.info-section-sub{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#8E8E93;margin-top:8px;margin-bottom:4px}
+
+/* ─── Состав заказа ─── */
+.order-table{width:100%;border-collapse:collapse}
+.order-table th{font-size:13px;font-weight:600;color:#636366;text-align:left;padding:8px 0;border-bottom:1px solid #F2F2F7}
+.order-table th:not(:first-child){text-align:right}
+.order-table td{font-size:14px;color:#1C1C1E;padding:10px 0;border-bottom:.5px solid #F2F2F7}
+.order-table td:not(:first-child){text-align:right}
+.order-table .section-sub td{font-size:13px;color:#636366;padding:6px 0}
+.order-table .section-sub td:first-child{padding-left:12px}
+.total-row td{font-weight:700;border-bottom:none;padding-top:12px;font-size:15px}
+.add-label{font-size:13px;font-weight:600;color:#636366;padding:8px 0 4px}
+
+/* ─── Кнопки действий ─── */
+.actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.btn-primary{width:100%;height:48px;background:#D42B2B;color:#fff;border-radius:12px;font-size:15px;font-weight:600;transition:background .14s,transform .1s}
+.btn-primary:hover{background:#BC2525}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{background:#C7C7CC;cursor:not-allowed}
+.btn-outline-review{width:100%;height:48px;background:#fff;border:1.5px solid #D42B2B;color:#D42B2B;border-radius:12px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .14s}
+.btn-outline-review:hover{background:#FFF5F5}
+.review-sent-badge{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;background:#E8FFF0;border-radius:12px;font-size:14px;font-weight:600;color:#1A7F37}
+
+/* ─── Чекбокс ─── */
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;margin-top:12px;cursor:pointer}
+.cb-box{width:20px;height:20px;border:1.5px solid #C7C7CC;border-radius:5px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .14s}
+.cb-box.checked{background:#D42B2B;border-color:#D42B2B}
+.cb-label{font-size:13px;color:#636366;line-height:1.5}
+
+/* ─── Модал отзыва ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:24px;width:100%;max-width:480px;overflow:hidden;transform:scale(.96) translateY(12px);transition:transform .25s}
+.modal-overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-header{padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:18px;font-weight:700;color:#1C1C1E}
+.modal-close{width:32px;height:32px;border-radius:8px;background:#F2F2F7;display:flex;align-items:center;justify-content:center;color:#636366;transition:background .12s}
+.modal-close:hover{background:#E5E5EA}
+.modal-body{padding:20px}
+.modal-complex{font-size:13px;font-weight:500;color:#636366;margin-bottom:16px}
+.modal-complex span{color:#D42B2B;font-weight:600}
+
+/* ─── Звёзды ─── */
+.stars-label{font-size:13px;color:#1C1C1E;font-weight:500;margin-bottom:10px}
+.stars{display:flex;gap:8px;margin-bottom:20px}
+.star{width:40px;height:40px;cursor:pointer;color:#E5E5EA;transition:color .1s,transform .1s}
+.star:hover,.star.active{color:#FF9500}
+.star:active{transform:scale(.9)}
+
+.textarea-wrap{position:relative;margin-bottom:20px}
+.modal-textarea{width:100%;height:100px;border:1.5px solid #E5E5EA;border-radius:12px;padding:12px;font-size:14px;color:#1C1C1E;resize:none;font-family:inherit;outline:none;transition:border-color .14s}
+.modal-textarea:focus{border-color:#D42B2B}
+.modal-textarea::placeholder{color:#C7C7CC}
+.char-counter{position:absolute;bottom:10px;right:12px;font-size:12px;color:#C7C7CC}
+
+.modal-footer{display:flex;gap:10px;padding:0 20px 20px}
+.modal-btn-cancel{flex:1;height:48px;background:#F2F2F7;color:#1C1C1E;border-radius:12px;font-size:15px;font-weight:500;transition:background .12s}
+.modal-btn-cancel:hover{background:#E5E5EA}
+.modal-btn-send{flex:2;height:48px;background:#D42B2B;color:#fff;border-radius:12px;font-size:15px;font-weight:600;transition:background .14s,opacity .14s}
+.modal-btn-send:hover:not(:disabled){background:#BC2525}
+.modal-btn-send:disabled{opacity:.4;cursor:not-allowed}
+
+/* ─── Состояние успех ─── */
+.success-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 20px 20px}
+.success-icon{width:64px;height:64px;background:#E8FFF0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.success-title{font-size:18px;font-weight:700;color:#1C1C1E;margin-bottom:8px}
+.success-sub{font-size:14px;color:#636366;line-height:1.5}
+.success-close-btn{margin-top:24px;width:100%;height:48px;background:#F2F2F7;color:#1C1C1E;border-radius:12px;font-size:15px;font-weight:500}
+
+/* ─── Сценарий-переключатель ─── */
+.scenario-bar{background:#1C1C1E;padding:12px 48px;display:flex;align-items:center;gap:12px}
+.scenario-label{color:#8E8E93;font-size:13px;flex-shrink:0}
+.scenario-btn{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;color:#8E8E93;background:none;transition:all .14s}
+.scenario-btn.active{background:#D42B2B;color:#fff}
+.scenario-btn:hover:not(.active){background:#2C2C2E;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ─── Сценарий переключатель ─── -->
+<div class="scenario-bar">
+  <span class="scenario-label">UC-R03 · Сценарий:</span>
+  <button class="scenario-btn active" onclick="setScenario('pending')">Отзыв не оставлен</button>
+  <button class="scenario-btn" onclick="setScenario('sent')">Отзыв отправлен</button>
+  <button class="scenario-btn" onclick="setScenario('other-status')">Другой статус заказа</button>
+</div>
+
+<!-- ─── Шапка сайта ─── -->
+<div class="topbar">
+  <div class="topbar-city">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Челябинск
+  </div>
+  <span class="topbar-phone">+7 800-511-88-69</span>
+</div>
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-lines">
+      <div class="nav-logo-line"></div>
+      <div class="nav-logo-line"></div>
+      <div class="nav-logo-line"></div>
+    </div>
+    <div>
+      <div class="nav-logo-text">RE<span>FORCE</span></div>
+      <div class="nav-logo-sub">Платформа безопасности</div>
+    </div>
+  </div>
+
+  <div class="nav-search">
+    <input type="text" placeholder="Поиск...">
+    <div class="nav-search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    </div>
+  </div>
+  <button class="nav-search-btn" style="position:relative;right:0;top:0;height:40px;border-radius:10px;padding:0 16px;background:#1C1C1E;color:#fff;font-size:14px;font-weight:600;margin-left:-40px;z-index:1">Найти</button>
+
+  <div class="nav-actions">
+    <button class="nav-action-btn">
+      <div class="nav-action-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      </div>
+      <span class="nav-action-label">Корзина</span>
+      <div class="nav-badge">1</div>
+    </button>
+    <button class="nav-action-btn">
+      <div class="nav-action-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      </div>
+      <span class="nav-action-label">Заявки</span>
+    </button>
+    <button class="nav-action-btn">
+      <div class="nav-action-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <span class="nav-action-label">Кабинет</span>
+    </button>
+    <button class="nav-action-btn">
+      <div class="nav-action-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span class="nav-action-label">Профиль</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Страница заказа ─── -->
+<div class="page">
+  <div class="breadcrumbs">
+    <a href="#">Заказы</a>
+    <span class="bc-sep">›</span>
+    <span style="color:#1C1C1E">Заказ № 000 763</span>
+  </div>
+
+  <!-- Карточка заказа -->
+  <div class="order-card">
+    <div class="order-header">
+      <h1 class="order-title">Заказ № 000 763</h1>
+    </div>
+
+    <div class="order-meta">
+      <div>
+        <div class="meta-label">ФИО:</div>
+        <div class="meta-value">Иванов Иван Иванович</div>
+      </div>
+      <div style="text-align:center">
+        <div class="meta-label">Текущий статус:</div>
+        <div id="status-badge-wrap">
+          <span class="status-badge status-done">
+            <span style="width:6px;height:6px;border-radius:50%;background:#34C759;display:inline-block"></span>
+            Завершён
+          </span>
+        </div>
+      </div>
+      <div class="order-sum">
+        <div class="order-sum-label">Сумма заказа:</div>
+        <div class="order-sum-value">2 000 ₽</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Левая колонка -->
+    <div>
+      <!-- Информация о клиенте -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="section-title-text">Информация о клиенте</span>
+          <svg class="section-chevron open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+        </div>
+        <div class="section-body">
+          <div class="info-grid">
+            <div class="info-section-sub">Контакты</div>
+            <div class="info-row">
+              <span class="info-label">Почта:</span>
+              <span class="info-value">ivan78@yandex.ru</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Телефон:</span>
+              <span class="info-value">+7 888 888-88-88</span>
+            </div>
+            <div class="info-section-sub">Тип занятости</div>
+            <div class="info-row">
+              <span class="info-label">Тип:</span>
+              <span class="info-value">Юридическое лицо</span>
+            </div>
+            <div class="info-section-sub">Реквизиты</div>
+            <div class="info-row">
+              <span class="info-label">БИК:</span>
+              <span class="info-value">1234</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">№ расч. счёта:</span>
+              <span class="info-value">1234</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Данные об объекте -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="section-title-text">Данные об объекте</span>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="section-body" style="display:none">
+          <div class="info-row">
+            <span class="info-label">Адрес:</span>
+            <span class="info-value">г. Челябинск, ул. Ленина, 1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ответственные лица -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="section-title-text">Ответственные лица</span>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="section-body" style="display:none">
+          <div class="info-row">
+            <span class="info-label">Менеджер:</span>
+            <span class="info-value">Петрова А.В.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Блок действий -->
+      <div class="actions" id="actions-block">
+        <button class="btn-primary" onclick="window.location='#'" disabled style="background:#C7C7CC;cursor:not-allowed">Доступ к Личному кабинету</button>
+
+        <!-- Кнопка отзыва / бейдж -->
+        <div id="review-action">
+          <button class="btn-outline-review" onclick="openReviewModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Оставить отзыв
+          </button>
+        </div>
+
+        <label class="checkbox-row" onclick="toggleCb(this)">
+          <div class="cb-box"><svg width="11" height="9" viewBox="0 0 13 10" fill="none" style="display:none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="cb-label">Подтверждаю, что ознакомлен(-а) с договором и принимаю его условия.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Правая колонка -->
+    <div>
+      <!-- Состав заказа -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="section-title-text">Состав заказа</span>
+          <svg class="section-chevron open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+        </div>
+        <div class="section-body">
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>Наименование</th>
+                <th>Цена</th>
+                <th>Количество</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500">Комплект «Защита квартиры»</td>
+                <td>2 000 ₽</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td colspan="3" style="padding:8px 0 0;font-size:13px;font-weight:600;color:#636366">Дополнительно</td>
+              </tr>
+              <tr class="section-sub">
+                <td style="padding-left:12px">Датчик 1</td>
+                <td>2 000 ₽</td>
+                <td>1</td>
+              </tr>
+              <tr class="section-sub">
+                <td style="padding-left:12px">Датчик 2</td>
+                <td>2 000 ₽</td>
+                <td>1</td>
+              </tr>
+              <tr class="total-row">
+                <td>Итого</td>
+                <td colspan="2" style="text-align:right">2 000 ₽</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Персональный менеджер -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="section-title-text">Персональный менеджер</span>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="section-body" style="display:none">
+          <div class="info-row">
+            <span class="info-label">Имя:</span>
+            <span class="info-value">Анастасия Петрова</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Телефон:</span>
+            <span class="info-value">+7 800-511-88-69</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Модал отзыва ─── -->
+<div class="modal-overlay" id="review-modal" onclick="closeIfBackdrop(event)">
+  <div class="modal">
+
+    <!-- Форма отзыва -->
+    <div id="modal-form-state">
+      <div class="modal-header">
+        <h2 class="modal-title">Оставить отзыв</h2>
+        <button class="modal-close" onclick="closeReviewModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-complex">Комплект: <span>«Защита квартиры»</span></p>
+
+        <p class="stars-label">Ваша оценка <span style="color:#D42B2B">*</span></p>
+        <div class="stars" id="stars-row">
+          <svg class="star" data-val="1" onclick="setStars(1)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" data-val="2" onclick="setStars(2)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" data-val="3" onclick="setStars(3)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" data-val="4" onclick="setStars(4)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="star" data-val="5" onclick="setStars(5)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+
+        <div class="textarea-wrap">
+          <textarea class="modal-textarea" id="review-text" maxlength="500" placeholder="Расскажите о вашем опыте (необязательно)" oninput="updateCounter()"></textarea>
+          <span class="char-counter"><span id="char-count">0</span>/500</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn-cancel" onclick="closeReviewModal()">Отмена</button>
+        <button class="modal-btn-send" id="send-btn" disabled onclick="submitReview()">Отправить</button>
+      </div>
+    </div>
+
+    <!-- Состояние успеха -->
+    <div id="modal-success-state" style="display:none">
+      <div class="success-state">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34C759" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="success-title">Спасибо за отзыв!</h3>
+        <p class="success-sub">Ваш отзыв отправлен на проверку.<br>После одобрения он появится на сайте.</p>
+        <button class="success-close-btn" onclick="closeAfterSuccess()">Закрыть</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let selectedStars = 0;
+
+function openReviewModal() {
+  document.getElementById('review-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeReviewModal() {
+  document.getElementById('review-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeIfBackdrop(e) {
+  if (e.target === document.getElementById('review-modal')) closeReviewModal();
+}
+function closeAfterSuccess() {
+  closeReviewModal();
+  // Заменяем кнопку на бейдж
+  document.getElementById('review-action').innerHTML = `
+    <div class="review-sent-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Отзыв отправлен
+    </div>`;
+  setTimeout(() => {
+    document.getElementById('modal-form-state').style.display = '';
+    document.getElementById('modal-success-state').style.display = 'none';
+    setStars(0);
+    document.getElementById('review-text').value = '';
+    updateCounter();
+  }, 300);
+}
+
+function setStars(val) {
+  selectedStars = val;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+  document.getElementById('send-btn').disabled = val === 0;
+}
+
+function updateCounter() {
+  const len = document.getElementById('review-text').value.length;
+  document.getElementById('char-count').textContent = len;
+}
+
+function submitReview() {
+  document.getElementById('modal-form-state').style.display = 'none';
+  document.getElementById('modal-success-state').style.display = '';
+}
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.section-chevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function toggleCb(label) {
+  const box = label.querySelector('.cb-box');
+  const check = label.querySelector('svg');
+  box.classList.toggle('checked');
+  check.style.display = box.classList.contains('checked') ? 'block' : 'none';
+}
+
+function setScenario(sc) {
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const badge = document.getElementById('status-badge-wrap');
+  const reviewAction = document.getElementById('review-action');
+
+  if (sc === 'pending') {
+    badge.innerHTML = '<span class="status-badge status-done"><span style="width:6px;height:6px;border-radius:50%;background:#34C759;display:inline-block"></span> Завершён</span>';
+    reviewAction.innerHTML = '<button class="btn-outline-review" onclick="openReviewModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Оставить отзыв</button>';
+  } else if (sc === 'sent') {
+    badge.innerHTML = '<span class="status-badge status-done"><span style="width:6px;height:6px;border-radius:50%;background:#34C759;display:inline-block"></span> Завершён</span>';
+    reviewAction.innerHTML = '<div class="review-sent-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg> Отзыв отправлен</div>';
+  } else {
+    badge.innerHTML = '<span class="status-badge status-active"><span style="width:6px;height:6px;border-radius:50%;background:#FF9500;display:inline-block"></span> Активация договора</span>';
+    reviewAction.innerHTML = '';
+  }
+}
+</script>
+</body>
+</html>

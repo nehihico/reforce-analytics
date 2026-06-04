@@ -119,6 +119,9 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
 /* done state: "Отзыв отправлен" tag */
 .done-tag { font-size: 12px; color: #888; background: #F0F0F0; border-radius: 8px; padding: 5px 10px; }
 
+/* Push banner animation */
+@keyframes slideDown { from { transform:translateY(-60px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
 /* NPS да/нет */
 .nps-btn { flex: 1; padding: 10px; border: 2px solid #E0E0E0; border-radius: 10px; background: #fff; font-size: 14px; font-weight: 600; color: #555; cursor: pointer; }
 .nps-btn.sel { border-color: #E32222; background: #FFF0F0; color: #E32222; }
@@ -396,6 +399,112 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
 
     </div><!-- /phoneB -->
     <div class="phone-hint">Нажми «Оставить отзыв» → bottom sheet<br>Выбери звёзды → кнопка активируется</div>
+  </div>
+
+  <!-- Phone C: Push notification (UC-R02) -->
+  <div class="phone-wrap">
+    <div class="phone-label">Экран UC-R02 · Пуш → Bottom sheet → Успех</div>
+    <div class="phone" id="phoneC">
+
+      <!-- SC1: Главная с пуш-баннером -->
+      <div class="screen active" id="sC1">
+        <div class="sbar"><span>12:09</span><span>▪▪ ▼ 37%</span></div>
+
+        <!-- Push notification banner -->
+        <div id="pushBanner" onclick="openBSC()" style="position:absolute;top:44px;left:12px;right:12px;z-index:20;cursor:pointer;">
+          <div style="background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.18);display:flex;align-items:center;gap:10px;animation:slideDown 0.4s ease;">
+            <div style="width:36px;height:36px;background:#E32222;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:800;">R</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:#1A1A1A;">Reforce</div>
+              <div style="font-size:13px;color:#333;margin-top:1px;">Оцените установку комплекта</div>
+              <div style="font-size:12px;color:#888;margin-top:1px;">Умный дом Стандарт</div>
+            </div>
+            <div style="font-size:10px;color:#AAA;flex-shrink:0;">сейчас</div>
+          </div>
+        </div>
+
+        <!-- Main screen content (dimmed) -->
+        <div style="opacity:0.4;">
+          <div class="scroll-area" style="padding-top:8px;">
+            <div class="search-bar">Лаборатория Стенд</div>
+            <div class="tabs-row">
+              <div class="tab-item sel">Информация</div>
+              <div class="tab-item">События</div>
+            </div>
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div class="badge">◉ Не на охране</div>
+                <div style="width:32px;height:32px;background:#E0E0E0;border-radius:8px;"></div>
+              </div>
+              <div style="font-size:16px;font-weight:700;color:#111;margin:10px 0 3px;">Лаборатория Стенд</div>
+              <div style="font-size:13px;color:#888;margin-bottom:2px;">№ Объекта: 6513</div>
+              <div class="statuses-row"><span class="stat-text">Статусы приборов</span><span style="color:#AAA;">∨</span></div>
+            </div>
+            <div class="sec-title">Разделы</div>
+            <div class="grid2">
+              <div class="tile"><div class="tile-dot"></div><div class="tile-name">Раздел 1</div><div class="tile-sub">Не на охране</div></div>
+              <div class="tile"><div class="tile-dot"></div><div class="tile-name">Раздел 2</div><div class="tile-sub">Не на охране</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab"><div class="tab-icon active-icon"></div><div class="tab-text active-text">Объекты</div></div>
+          <div class="tab"><div class="tab-icon"></div><div class="tab-text">Платежи</div></div>
+          <div class="tab"><div class="tab-icon"></div><div class="tab-text">Поддержка</div></div>
+          <div class="tab"><div class="tab-icon"></div><div class="tab-text">Профиль</div></div>
+        </div>
+
+        <!-- Bottom sheet C -->
+        <div id="bsOverlayC" onclick="closeBSC()" style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;z-index:10;"></div>
+        <div id="bsSheetC" style="position:absolute;bottom:-700px;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:12px 16px 28px;z-index:11;transition:bottom 0.3s ease;overflow-y:auto;max-height:90%;">
+          <div style="width:36px;height:4px;background:#DDD;border-radius:2px;margin:0 auto 14px;"></div>
+          <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:3px;">Оставить отзыв</div>
+          <div style="font-size:13px;color:#888;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #F0F0F0;">Умный дом Стандарт</div>
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:10px;">Качество услуги</div>
+          <div class="stars-row" id="starsC1" style="margin-bottom:16px;">
+            <span class="star" onclick="pickStarMulti('starsC1',1,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC1',2,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC1',3,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC1',4,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC1',5,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:10px;">Работа менеджера</div>
+          <div class="stars-row" id="starsC2" style="margin-bottom:16px;">
+            <span class="star" onclick="pickStarMulti('starsC2',1,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC2',2,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC2',3,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC2',4,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC2',5,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:10px;">Работа монтажника</div>
+          <div class="stars-row" id="starsC3" style="margin-bottom:16px;">
+            <span class="star" onclick="pickStarMulti('starsC3',1,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC3',2,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC3',3,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC3',4,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+            <span class="star" onclick="pickStarMulti('starsC3',5,'submitC',['starsC1','starsC2','starsC3'])">★</span>
+          </div>
+          <div class="textarea-label" id="commentLabelC">Комментарий (необязательно)</div>
+          <textarea class="ta" id="taC" maxlength="500" placeholder="Напишите ваш отзыв..." oninput="cnt('taC','ccC'); checkSubmitReady('submitC',['starsC1','starsC2','starsC3'],'C')" style="height:80px;margin-top:6px;"></textarea>
+          <div class="counter"><span id="ccC">0</span> / 500</div>
+          <button class="submit off" id="submitC" onclick="doSubmitBSC()">Отправить</button>
+        </div>
+      </div>
+
+      <!-- SC2: Успех -->
+      <div class="screen" id="sC2">
+        <div class="sbar"><span>12:09</span><span>▪▪ ▼ 37%</span></div>
+        <div style="height:calc(100% - 44px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;text-align:center;">
+          <div class="success-circle">✓</div>
+          <div class="success-title">Спасибо за отзыв!</div>
+          <div class="success-sub">Он появится после проверки</div>
+          <button class="success-home" onclick="goC('sC1'); resetPush();">На главную</button>
+        </div>
+      </div>
+
+    </div><!-- /phoneC -->
+    <div class="phone-hint">Нажми на пуш-баннер → bottom sheet<br>Выбери звёзды → кнопка активируется</div>
   </div>
 
 </div><!-- /mobile-section -->
@@ -927,6 +1036,40 @@ function doSubmitBSA() {
   if (document.getElementById('submitA').classList.contains('off')) return;
   closeBSA();
   goA('sA3');
+}
+
+// ---- Phone C screens ----
+function goC(id) {
+  document.querySelectorAll('#phoneC .screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function openBSC() {
+  document.getElementById('pushBanner').style.display = 'none';
+  document.getElementById('bsOverlayC').style.display = 'block';
+  document.getElementById('bsSheetC').style.bottom = '0';
+}
+function closeBSC() {
+  document.getElementById('bsOverlayC').style.display = 'none';
+  document.getElementById('bsSheetC').style.bottom = '-700px';
+}
+function doSubmitBSC() {
+  if (document.getElementById('submitC').classList.contains('off')) return;
+  closeBSC();
+  goC('sC2');
+}
+function resetPush() {
+  document.getElementById('pushBanner').style.display = 'block';
+  // reset stars
+  ['starsC1','starsC2','starsC3'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.dataset.val='0'; el.querySelectorAll('.star').forEach(s=>s.classList.remove('lit')); }
+  });
+  document.getElementById('taC').value = '';
+  document.getElementById('ccC').textContent = '0';
+  document.getElementById('submitC').className = 'submit off';
+  const lbl = document.getElementById('commentLabelC');
+  if(lbl) { lbl.innerHTML='Комментарий (необязательно)'; lbl.style.color='#888'; }
+  document.getElementById('taC').dataset.required = '';
 }
 
 // ---- Bottom sheet B (карточка заказа) ----

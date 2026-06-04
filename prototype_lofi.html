@@ -686,7 +686,7 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
       <div style="display:flex;gap:8px;font-size:13px;color:#555;">
         <span style="padding:6px 14px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#F5F5F5'" onmouseout="this.style.background='transparent'">Объекты</span>
         <span style="padding:6px 14px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#F5F5F5'" onmouseout="this.style.background='transparent'">Заказы</span>
-        <span style="padding:6px 14px;cursor:pointer;border-radius:6px;background:#FFF0F0;color:#E32222;font-weight:700;">Отзывы</span>
+        <span style="padding:6px 14px;cursor:pointer;border-radius:6px;background:#FFF0F0;color:#E32222;font-weight:700;display:inline-flex;align-items:center;gap:6px;">Отзывы<span id="navBadge" style="background:#E32222;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;"></span></span>
         <span style="padding:6px 14px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#F5F5F5'" onmouseout="this.style.background='transparent'">Клиенты</span>
       </div>
       <div style="font-size:13px;color:#555;">👤 Администратор</div>
@@ -701,7 +701,7 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
       <!-- Title row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <div style="font-size:22px;font-weight:800;color:#1A1A1A;">Отзывы</div>
-        <button onclick="openStopWords()" style="background:#fff;border:1.5px solid #E0E0E0;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#555;cursor:pointer;">⚙ Стоп-слова</button>
+        <button onclick="openStopWords()" style="background:#fff;border:1.5px solid #E0E0E0;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#555;cursor:pointer;">⚙ Управление стоп-словами</button>
       </div>
 
       <!-- Filter tabs + dropdowns -->
@@ -778,11 +778,8 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
     <div style="font-size:12px;font-weight:700;color:#999;margin-bottom:6px;">КОММЕНТАРИЙ</div>
     <div id="amComment" style="font-size:14px;color:#333;line-height:1.6;background:#FAFAFA;border-radius:8px;padding:12px 14px;min-height:48px;margin-bottom:24px;"></div>
 
-    <!-- Action buttons -->
-    <div style="display:flex;gap:12px;">
-      <button id="amPublish" style="flex:1;padding:12px;border:none;border-radius:8px;background:#E8F5E9;color:#2E7D32;font-size:14px;font-weight:700;">✓ Опубликовать</button>
-      <button id="amReject"  style="flex:1;padding:12px;border:none;border-radius:8px;background:#F5F5F5;color:#757575;font-size:14px;font-weight:700;">✕ Отклонить</button>
-    </div>
+    <!-- Action area (dynamic) -->
+    <div id="amActions"></div>
   </div>
 
   <!-- Stop-words modal -->
@@ -791,7 +788,8 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
       <div style="font-size:18px;font-weight:800;color:#1A1A1A;">Стоп-слова</div>
       <span onclick="closeStopWords()" style="color:#AAA;font-size:22px;cursor:pointer;line-height:1;">✕</span>
     </div>
-    <div style="font-size:13px;color:#888;margin-bottom:20px;">Отзывы с этими словами отклоняются автоматически</div>
+    <div style="font-size:13px;color:#888;margin-bottom:4px;">Отзывы с этими словами отклоняются автоматически.</div>
+    <div style="font-size:12px;color:#BBB;margin-bottom:20px;">Список применяется только к новым отзывам — уже проверенные не пересчитываются.</div>
     <div id="swList" style="margin-bottom:16px;max-height:220px;overflow-y:auto;"></div>
     <div style="display:flex;gap:8px;">
       <input id="swInput" type="text" placeholder="Добавить слово..." onkeydown="if(event.key==='Enter')addStopWord()" style="flex:1;border:1.5px solid #E0E0E0;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;" onfocus="this.style.borderColor='#333'" onblur="this.style.borderColor='#E0E0E0'">
@@ -799,7 +797,10 @@ h1 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
     </div>
   </div>
 
-  <p style="font-size:10px;color:#AAA;margin-top:12px;font-style:italic;">Нажми на строку → карточка модерации · ⚙ Стоп-слова → управление списком</p>
+  <!-- Toast -->
+  <div id="adminToast" style="display:none;position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,0.25);white-space:nowrap;"></div>
+
+  <p style="font-size:10px;color:#AAA;margin-top:12px;font-style:italic;">Нажми на строку → карточка модерации · ⚙ Управление стоп-словами → список</p>
 </div>
 
 <script>
@@ -956,7 +957,7 @@ const reviewsData = [
   { id:1, client:'Сергей Петров',   komplect:'Умный дом Стандарт', q1:5,q2:5,q3:5, comment:'Отличная компания! Всё работает как часы. Особенно нравится управление с телефона. Рекомендую.', date:'01.06.2026', status:'pending', auto:false },
   { id:2, client:'Анна Смирнова',   komplect:'Охрана периметра',   q1:2,q2:3,q3:2, comment:'Долго ждали мастера, пришлось переносить дважды. Качество установки нормальное, но сроки подвели.', date:'31.05.2026', status:'pending', auto:false },
   { id:3, client:'Владимир Никитин',komplect:'Базовая охрана',     q1:4,q2:5,q3:4, comment:'Монтаж хороший, мастер всё объяснил понятно.', date:'30.05.2026', status:'published', auto:false },
-  { id:4, client:'Мария Иванова',   komplect:'Умный дом Стандарт', q1:1,q2:1,q3:1, comment:'Отклонён автоматически — стоп-слово обнаружено', date:'29.05.2026', status:'rejected', auto:true },
+  { id:4, client:'Мария Иванова',   komplect:'Умный дом Стандарт', q1:1,q2:1,q3:1, comment:'Текст содержит запрещённые слова', date:'29.05.2026', status:'rejected', auto:true },
   { id:5, client:'Игорь Соколов',   komplect:'Защита квартиры',    q1:5,q2:4,q3:5, comment:'Отличный сервис, всё быстро и профессионально.', date:'28.05.2026', status:'published', auto:false },
   { id:6, client:'Татьяна Лебедева',komplect:'Охрана периметра',   q1:4,q2:4,q3:4, comment:'', date:'27.05.2026', status:'rejected', auto:false },
 ];
@@ -967,41 +968,63 @@ const statusStyle = {
   published:'background:#E8F5E9;color:#2E7D32;',
   rejected: 'background:#F5F5F5;color:#757575;'
 };
-function starsHtml(n) {
-  return Array.from({length:5},(_,i)=>`<span style="color:${i<n?'#E32222':'#DDD'};font-size:14px;">★</span>`).join('');
+const emptyMsg = {
+  all:       'Отзывов пока нет',
+  pending:   'Новых отзывов нет — всё проверено ✓',
+  published: 'Опубликованных отзывов пока нет',
+  rejected:  'Отклонённых отзывов нет'
+};
+function starsHtml(n, size) {
+  const s = size||14;
+  return Array.from({length:5},(_,i)=>`<span style="color:${i<n?'#E32222':'#DDD'};font-size:${s}px;">★</span>`).join('');
+}
+function updateNavBadge() {
+  const count = reviewsData.filter(r=>r.status==='pending').length;
+  const el = document.getElementById('navBadge');
+  if(el) { el.textContent = count > 0 ? count : ''; el.style.display = count > 0 ? 'inline' : 'none'; }
 }
 function renderAdmin() {
   const list = adminFilter==='all' ? reviewsData : reviewsData.filter(r=>r.status===adminFilter);
   const counts = { all:reviewsData.length, pending:0, published:0, rejected:0 };
   reviewsData.forEach(r => counts[r.status]++);
-  // update tab counts
+  const tabNames = { all:'Все', pending:'На модерации', published:'Опубликованные', rejected:'Отклонённые' };
   ['all','pending','published','rejected'].forEach(k => {
     const el = document.getElementById('atab-'+k);
-    if(el) el.textContent = {all:'Все',pending:'На модерации',published:'Опубликованные',rejected:'Отклонённые'}[k] + ` (${counts[k]})`;
+    if(el) el.textContent = tabNames[k] + ` (${counts[k]})`;
   });
+  updateNavBadge();
   const body = document.getElementById('adminRows');
-  if (!body) return;
-  body.innerHTML = list.length ? list.map(r => `
+  if(!body) return;
+  if(!list.length) {
+    body.innerHTML = `<tr><td colspan="7" style="padding:48px 32px;text-align:center;"><div style="font-size:32px;margin-bottom:12px;">${adminFilter==='pending'?'✓':'📭'}</div><div style="font-size:15px;color:#AAA;font-weight:600;">${emptyMsg[adminFilter]}</div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(r => `
     <tr onclick="openAdminModal(${r.id})" style="cursor:pointer;border-bottom:1px solid #F5F5F5;" onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='#fff'">
       <td style="padding:12px 16px;font-size:13px;font-weight:600;color:#111;white-space:nowrap;">${r.client}</td>
       <td style="padding:12px 16px;font-size:13px;color:#555;">${r.komplect}</td>
       <td style="padding:12px 16px;white-space:nowrap;">${starsHtml(Math.round((r.q1+r.q2+r.q3)/3))}</td>
-      <td style="padding:12px 16px;font-size:13px;color:#555;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.comment||'—'}</td>
+      <td style="padding:12px 16px;font-size:13px;color:${r.auto?'#E65100':'#555'};max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.auto?'⚠ Обнаружено стоп-слово':(r.comment||'— без комментария')}</td>
       <td style="padding:12px 16px;font-size:12px;color:#999;white-space:nowrap;">${r.date}</td>
       <td style="padding:12px 16px;">
         <span style="padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;${statusStyle[r.status]}">${r.auto?'Отклонён (авто)':statusLabel[r.status]}</span>
       </td>
-      <td style="padding:12px 16px;">
-        ${r.status==='pending'?`<span style="color:#E32222;font-size:12px;font-weight:600;">Модерировать →</span>`:`<span style="color:#CCC;font-size:12px;">Просмотр →</span>`}
+      <td style="padding:12px 16px;white-space:nowrap;">
+        ${r.status==='pending'
+          ? `<span style="color:#E32222;font-size:12px;font-weight:600;">Проверить →</span>`
+          : `<span style="color:#CCC;font-size:12px;">Просмотр →</span>`}
       </td>
-    </tr>`).join('') :
-    `<tr><td colspan="7" style="padding:32px;text-align:center;color:#AAA;font-size:14px;">Нет отзывов в этой категории</td></tr>`;
+    </tr>`).join('');
 }
 function setAdminFilter(f) {
   adminFilter = f;
   ['all','pending','published','rejected'].forEach(k => {
     const el = document.getElementById('atab-'+k);
-    if(el) { el.style.borderBottom = k===f ? '2px solid #E32222' : '2px solid transparent'; el.style.color = k===f ? '#E32222':'#555'; el.style.fontWeight = k===f?'700':'400'; }
+    if(el) {
+      el.style.borderBottom = k===f ? '2px solid #E32222' : '2px solid transparent';
+      el.style.color        = k===f ? '#E32222' : '#555';
+      el.style.fontWeight   = k===f ? '700' : '400';
+    }
   });
   renderAdmin();
 }
@@ -1010,22 +1033,26 @@ function openAdminModal(id) {
   if(!r) return;
   document.getElementById('amClient').textContent   = r.client;
   document.getElementById('amKomplect').textContent = r.komplect;
-  document.getElementById('amDate').textContent     = r.date;
-  document.getElementById('amQ1').innerHTML = starsHtml(r.q1);
-  document.getElementById('amQ2').innerHTML = starsHtml(r.q2);
-  document.getElementById('amQ3').innerHTML = starsHtml(r.q3);
-  document.getElementById('amComment').textContent = r.comment || '— (без комментария)';
+  document.getElementById('amDate').textContent     = `Дата отзыва: ${r.date}`;
+  document.getElementById('amQ1').innerHTML = starsHtml(r.q1, 18);
+  document.getElementById('amQ2').innerHTML = starsHtml(r.q2, 18);
+  document.getElementById('amQ3').innerHTML = starsHtml(r.q3, 18);
+  document.getElementById('amComment').textContent = r.comment || '— клиент не оставил комментарий';
   const badge = document.getElementById('amStatus');
-  badge.textContent = r.auto ? 'Отклонён (авто)' : statusLabel[r.status];
+  badge.textContent  = r.auto ? 'Отклонён (авто)' : statusLabel[r.status];
   badge.style.cssText = `padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;${statusStyle[r.status]}`;
-  const pub = document.getElementById('amPublish');
-  const rej = document.getElementById('amReject');
-  if (r.status==='pending') {
-    pub.style.opacity='1'; pub.style.cursor='pointer'; pub.onclick=()=>moderateReview(id,'published');
-    rej.style.opacity='1'; rej.style.cursor='pointer'; rej.onclick=()=>moderateReview(id,'rejected');
+  const act = document.getElementById('amActions');
+  if(r.status === 'pending') {
+    act.innerHTML = `
+      <div style="display:flex;gap:12px;">
+        <button onclick="moderateReview(${r.id},'published')" style="flex:1;padding:13px;border:none;border-radius:8px;background:#E8F5E9;color:#2E7D32;font-size:14px;font-weight:700;cursor:pointer;">✓ Опубликовать</button>
+        <button onclick="moderateReview(${r.id},'rejected')"  style="flex:1;padding:13px;border:none;border-radius:8px;background:#F5F5F5;color:#757575;font-size:14px;font-weight:700;cursor:pointer;">Отклонить</button>
+      </div>`;
+  } else if(r.auto) {
+    act.innerHTML = `<div style="background:#FFF8E1;border-radius:8px;padding:13px 16px;font-size:13px;color:#E65100;line-height:1.5;">⚠ Отзыв отклонён автоматически — в тексте обнаружено стоп-слово.<br>Ручная публикация недоступна.</div>`;
   } else {
-    pub.style.opacity='0.35'; pub.style.cursor='default'; pub.onclick=null;
-    rej.style.opacity='0.35'; rej.style.cursor='default'; rej.onclick=null;
+    const done = r.status==='published' ? 'опубликован' : 'отклонён';
+    act.innerHTML = `<div style="text-align:center;font-size:13px;color:#AAA;padding:10px;">Отзыв уже ${done} — изменить статус нельзя</div>`;
   }
   document.getElementById('adminModalOverlay').style.display='block';
   document.getElementById('adminModal').style.display='block';
@@ -1035,7 +1062,16 @@ function moderateReview(id, newStatus) {
   if(!r) return;
   r.status = newStatus;
   closeAdminModal();
+  showAdminToast(newStatus==='published' ? '✓ Отзыв опубликован — он появится на сайте' : 'Отзыв отклонён');
   renderAdmin();
+}
+function showAdminToast(msg) {
+  const t = document.getElementById('adminToast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.display='none'; }, 2500);
 }
 function closeAdminModal() {
   document.getElementById('adminModalOverlay').style.display='none';
@@ -1045,17 +1081,21 @@ function closeAdminModal() {
 // Stop-words
 let stopWords = ['плохо','ужас','кошмар','мошенники','обман'];
 function renderStopWords() {
-  document.getElementById('swList').innerHTML = stopWords.map((w,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F9F9F9;border-radius:6px;margin-bottom:6px;">
-      <span style="font-size:14px;color:#333;">${w}</span>
-      <span onclick="deleteStopWord(${i})" style="color:#E32222;cursor:pointer;font-size:18px;line-height:1;">×</span>
-    </div>`).join('');
+  const el = document.getElementById('swList');
+  el.innerHTML = stopWords.length
+    ? stopWords.map((w,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#F9F9F9;border-radius:6px;margin-bottom:6px;">
+          <span style="font-size:14px;color:#333;">${w}</span>
+          <span onclick="deleteStopWord(${i})" style="color:#E32222;cursor:pointer;font-size:18px;line-height:1;" title="Удалить">×</span>
+        </div>`).join('')
+    : `<div style="text-align:center;font-size:13px;color:#AAA;padding:20px 0;">Список стоп-слов пуст</div>`;
 }
 function addStopWord() {
   const inp = document.getElementById('swInput');
   const w = inp.value.trim().toLowerCase();
   if(w && !stopWords.includes(w)) { stopWords.push(w); renderStopWords(); }
-  inp.value='';
+  else if(stopWords.includes(w)) { inp.style.borderColor='#E32222'; setTimeout(()=>inp.style.borderColor='#E0E0E0',1200); }
+  inp.value=''; inp.focus();
 }
 function deleteStopWord(i) { stopWords.splice(i,1); renderStopWords(); }
 function openStopWords() {
